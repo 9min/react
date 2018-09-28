@@ -4,6 +4,7 @@
 
 ```jsx
 // JSX 문법으로 작성
+
 ReactDOM.render(
   <div className="App">
     <header className="App-header">
@@ -20,6 +21,7 @@ ReactDOM.render(
 
 ```jsx
 // JavaScript 문법으로 변환
+
 ReactDOM.render(
   React.createElement(
     "div",
