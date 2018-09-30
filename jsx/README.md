@@ -27,7 +27,9 @@ ReactDOM.render(
 ```
 
 위 코드의 JSX 문법은 자바스크립트 문법이 아니기 때문에 그냥 사용하게 되면 `SyntaxError`가 발생됩니다.  
-그래서 보통 [babel-plugin-transform-react-jsx](https://babeljs.io/docs/en/babel-plugin-transform-react-jsx)을 사용해서 JS 문법으로 변환을 한 후 사용하게 됩니다.  
+그래서 보통 Babel을 사용해서 JS 문법으로 변환을 한 후 사용하게 됩니다.  
+
+> React에서 JSX 코드를 변환하기 위해 사용하는 Babel Plugin으로는 [babel-plugin-transform-react-jsx](https://babeljs.io/docs/en/babel-plugin-transform-react-jsx)이 있습니다.  
 
 Babel은 JSX 코드를 `React.createElement()`로 변환하고 호출 하여 컴파일 합니다.  
 
