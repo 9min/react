@@ -6,8 +6,6 @@ const element = (
     Hello, world!
   </h1>
 );
-
-ReactDOM.render(element, document.getElementById('root'));
 ```
 
 ```jsx
@@ -15,17 +13,6 @@ const element = React.createElement(
   'h1',
   { className: 'greeting' },
   'Hello, world!'
-);
-
-ReactDOM.render(element, document.getElementById('root'));
-```
-
-jsx로 작성된 엘리먼트 태그들은 `React.createElement()`로 변환돼서 `ReactDOM.render()`의 첫번째 매개변수로 들어가게됩니다.  
-
-```jsx
-ReactDOM.render(
-  element, // React.createElement()
-  container[, callback]
 );
 ```
 
