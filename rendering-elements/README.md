@@ -23,10 +23,13 @@ ReactDOM.render(element, document.getElementById('root'));
 jsx로 작성된 엘리먼트 태그들은 `React.createElement()`로 변환돼서 `ReactDOM.render()`의 첫번째 매개변수로 들어가게됩니다.  
 
 ```js
-ReactDOM.render(element, container[, callback]);
+ReactDOM.render(
+  element, // React.createElement()
+  container[, callback]
+);
 ```
 
-React 내부의 createElement() 함수는 다음과 같이 첫번째 인자로는 태그의 type, 두번째 인자는 props, 세번째 인자는 children을 받습니다.  
+React 내부의 createElement() 함수의 매개변수는 첫번째로 태그의 type, 두번째로 props, 세번째로 children을 받습니다.  
 
 ```js
 React.createElement(
