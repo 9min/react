@@ -95,6 +95,6 @@ const element = {
 
 이러한 객체를 **`React elements`** 라고 합니다. React는 이러한 객체를 읽고 사용하여 DOM을 구성하고 최신 상태로 유지합니다.  
 
-다음 섹션에서 React 요소를 DOM에 렌더링하는 방법을 살펴 보겠습니다.  
+다음 섹션에서는 **`React elements`** 를 실제 DOM에 렌더링하는 방법을 살펴 보겠습니다.  
 
 [Rendering Elements >>](../rendering-elements/README.md)
