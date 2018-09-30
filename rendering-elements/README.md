@@ -10,7 +10,7 @@ const element = (
 ReactDOM.render(element, document.getElementById('root'));
 ```
 
-```js
+```jsx
 const element = React.createElement(
   'h1',
   { className: 'greeting' },
@@ -22,7 +22,7 @@ ReactDOM.render(element, document.getElementById('root'));
 
 jsx로 작성된 엘리먼트 태그들은 `React.createElement()`로 변환돼서 `ReactDOM.render()`의 첫번째 매개변수로 들어가게됩니다.  
 
-```js
+```jsx
 ReactDOM.render(
   element, // React.createElement()
   container[, callback]
@@ -31,7 +31,7 @@ ReactDOM.render(
 
 React 내부의 createElement() 함수의 매개변수는 첫번째로 태그의 type, 두번째로 props, 세번째로 children을 받습니다.  
 
-```js
+```jsx
 React.createElement(
   type, // 'div' or 'span' ...
   [props], // React component, class, function, React fragment type
@@ -203,4 +203,3 @@ function createElement(type, config, children) {
   }
 }
 ```
-
