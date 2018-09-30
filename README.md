@@ -5,25 +5,25 @@
 ## 리액트의 주요 개념
 
 - **Introducing JSX**  
-  리액트에서 사용하는 JSX 문법을 알아봅시다.
+  리액트에서 사용하는 JSX 문법을 알아봅시다.  
 
-- **Rendering Elements**
-  리액트 내부에서 렌더링 요소들을 어떻게 생성하고 관리하는지 알아봅시다.
+- **Rendering Elements**  
+  리액트 내부에서 렌더링 요소들을 어떻게 생성하고 관리하는지 알아봅시다.  
 
-- **Components and Props**
+- **Components and Props**  
 
-- **State and Lifecycle**
+- **State and Lifecycle**  
 
-- **Handling Events**
+- **Handling Events**  
 
-- **Conditional Rendering**
+- **Conditional Rendering**  
 
-- **Lists and Keys**
+- **Lists and Keys**  
 
-- **Forms**
+- **Forms**  
 
-- **Lifting State Up**
+- **Lifting State Up**  
 
-- **Composition vs Inheritance**
+- **Composition vs Inheritance**  
 
-- **Thinking In React**
+- **Thinking In React**  
