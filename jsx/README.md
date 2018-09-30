@@ -59,6 +59,15 @@ ReactDOM.render(
 );
 ```
 
+`React.createElement()`로 변환된 코드는 `ReactDOM.render()`의 첫 번째 매개변수로 들어가게 됩니다.  
+
+```jsx
+ReactDOM.render(
+  element, // React.createElement()
+  container[, callback]
+);
+```
+
 변환된 코드를 직접 보시고 싶으면 [BABEL 공식사이트의 'Try it out'](https://babeljs.io/repl#?babili=false&browsers=&build=&builtIns=false&spec=false&loose=false&code_lz=EoUwhgxgLgIg8gWQHQCcQDsAmIUAoBQABIQDyYCWAboRADZgDODAcmALYgC8ARAIIAO_bgD4ixUgAtw2FDXpNWHHgP4BaKWBkix4yQEY5jFuy59BqqOSi0QIgOohaEAPYdCUZ4VCQoJAPQSeqK6_hoyweIk_IYKJsrm5OhQKM4iAJKEADLOlCBe4ND-_BH-FJTCADRimM4QAK4cSUgA5iBQAKI2jVAAQgCeaZi4AOQpzlDDAJT4kwDcQA&debug=false&forceAllTransforms=false&shippedProposals=false&circleciRepo=&evaluate=false&fileSize=false&timeTravel=false&sourceType=module&lineWrap=true&presets=es2015%2Creact%2Cstage-2&prettier=false&targets=&version=6.26.0&envVersion=) 메뉴에서 확인이 가능합니다.  
 
 ## JSX는 객체를 나타냅니다
