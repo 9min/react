@@ -4,10 +4,10 @@
 
 ## 리액트의 주요 개념
 
-- **Introducing JSX**  
+- [**Introducing JSX**](https://github.com/9min/react/blob/master/jsx/README.md)  
   리액트에서 사용하는 JSX 문법을 알아봅시다.  
 
-- **Rendering Elements**  
+- [**Rendering Elements**](https://github.com/9min/react/blob/master/rendering-elements/README.md)  
   리액트 내부에서 렌더링 요소들을 어떻게 생성하고 관리하는지 알아봅시다.  
 
 - **Components and Props**  
