@@ -31,10 +31,7 @@ React.createElement(
 ```js
 function createElement(type, config, children) {
   var propName = void 0;
-
-  // Reserved names are extracted
   var props = {};
-
   var key = null;
   var ref = null;
   var self = null;
@@ -50,7 +47,6 @@ function createElement(type, config, children) {
 
     self = config.__self === undefined ? null : config.__self;
     source = config.__source === undefined ? null : config.__source;
-    // Remaining properties are added to a new props object
     for (propName in config) {
       if (hasOwnProperty$1.call(config, propName) && !RESERVED_PROPS.hasOwnProperty(propName)) {
         props[propName] = config[propName];
@@ -58,8 +54,6 @@ function createElement(type, config, children) {
     }
   }
 
-  // Children can be more than one argument, and those are transferred onto
-  // the newly allocated props object.
   var childrenLength = arguments.length - 2;
   if (childrenLength === 1) {
     props.children = children;
@@ -76,7 +70,6 @@ function createElement(type, config, children) {
     props.children = childArray;
   }
 
-  // Resolve default props
   if (type && type.defaultProps) {
     var defaultProps = type.defaultProps;
     for (propName in defaultProps) {
@@ -119,26 +112,31 @@ function createElement(type, config, children) {
   var ref = null;
 
   // config 매개변수에 들어있는 webpack으로 번들링할 때 생성된 this
-  /*
-    Object
-    {
-      __esModule: true
-    }
-  */
   var self = null;
 
   // cconfig 매개변수에 들어있는 webpack으로 번들링할 때 생성된 코드 위치
-  /*
-    Object
-    {
-      fileName: "/Users/kakao/Documents/react-project/src/index.js"
-      lineNumber: 64
-    }
-  */
   var source = null;
 
   (...)
+}
+```
 
+**self** 변수 형태
+
+```js
+Object
+{
+  __esModule: true
+}
+```
+
+**source** 변수 형태
+
+```js
+Object
+{
+  fileName: "/Users/kakao/Documents/react-project/src/index.js"
+  lineNumber: 64
 }
 ```
 
@@ -146,7 +144,6 @@ function createElement(type, config, children) {
 
 ```js
 function createElement(type, config, children) {
-
   (...)
 
   // config 매개변수 값이 존재하면
@@ -173,20 +170,143 @@ function createElement(type, config, children) {
     source = config.__source === undefined ? null : config.__source;
 
     // config 객체를 탐색하면서 RESERVED_PROPS 객체의 프로퍼티 이름과 다른게 있으면 별도로 props 객체에 저장
-    /*
-      RESERVED_PROPS
-      {
-        key: true
-        ref: true
-        __self: true
-        __source: true
-      }
-    */
     for (propName in config) {
       if (hasOwnProperty$1.call(config, propName) && !RESERVED_PROPS.hasOwnProperty(propName)) {
         props[propName] = config[propName];
       }
     }
   }
+
+  (...)
 }
 ```
+
+**RESERVED_PROPS** 상수 형태
+
+```js
+Object
+{
+  key: true
+  ref: true
+  __self: true
+  __source: true
+}
+```
+
+3. **children 체크**
+
+```js
+function createElement(type, config, children) {
+  (...)
+
+  // children 매개변수가 있는지 확인 ( 있으면 1 )
+  var childrenLength = arguments.length - 2;
+
+  // children 매개변수가 있으면
+  if (childrenLength === 1) {
+
+    // props 객체에 children 이름으로 children 저장
+    props.children = children;
+
+  // type, config, children 이외에 추가로 인자가 더 들어있으면
+  } else if (childrenLength > 1) {
+
+    // 추가된 인자 + 1만큼의 빈 배열을 생성하고
+    var childArray = Array(childrenLength);
+
+    // 그 개수보다 작을때까지 반복문을 돌면서 childArray 배열에 값을 넣습니다.
+    // [children, 추가된 인자, ...]
+    for (var i = 0; i < childrenLength; i++) {
+      childArray[i] = arguments[i + 2];
+    }
+
+    // childArray 값을 수정 못하게 Object.freeze 메서드를 사용해서 불변 객체로 만들어 줍니다.
+    {
+      if (Object.freeze) {
+        Object.freeze(childArray);
+      }
+    }
+
+    // props 객체에 children 이름으로 childArray 배열 저장
+    props.children = childArray;
+  }
+
+  (...)
+}
+```
+
+4. **defaultProps 체크**
+
+```js
+function createElement(type, config, children) {
+  (...)
+
+  // type 매개변수가 존재하고 type에 defaultProps 값이 있으면
+  if (type && type.defaultProps) {
+
+    // defaultProps 변수에 type.defaultProps 값을 넣고
+    var defaultProps = type.defaultProps;
+
+    // defaultProps를 탐색하면서
+    for (propName in defaultProps) {
+
+      // props 객체에 같은 이름이 존재하지 않으면
+      if (props[propName] === undefined) {
+
+        // defaultProps로 설정한 값들을 props 객체에 저장합니다.
+        props[propName] = defaultProps[propName];
+      }
+    }
+  }
+
+  (...)
+}
+```
+
+5. **key, ref 체크**
+
+```js
+function createElement(type, config, children) {
+  (...)
+
+  {
+    // key나 ref 값이 있으면
+    if (key || ref) {
+
+      // type이 함수면 displayName 변수에
+      // type.displayName 값을 넣고 ( 태그 이름 )
+      // type.displayName 값이 없으면 type.name 값을 넣고 ( 컴포넌트 이름 )
+      // type.name 값도 없으면 'Unknown' 문자열을 넣습니다.
+      // type이 함수가 아니면 displayName 변수에 type을 그대로 넣습니다
+      var displayName = typeof type === 'function' ? type.displayName || type.name || 'Unknown' : type;
+
+      // key 값이 있으면
+      if (key) {
+
+        // props 객체에 key를 getter로 바인딩
+        defineKeyPropWarningGetter(props, displayName);
+      }
+
+      // ref 값이 있으면
+      if (ref) {
+
+        // props 객체에 ref를 getter로 바인딩
+        defineRefPropWarningGetter(props, displayName);
+      }
+    }
+  }
+
+  (...)
+}
+```
+
+6. **ReactElement 생성 후 리턴**
+
+```js
+function createElement(type, config, children) {
+  (...)
+
+  return ReactElement(type, key, ref, self, source, ReactCurrentOwner.current, props);
+}
+```
+
