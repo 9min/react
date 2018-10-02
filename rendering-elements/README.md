@@ -306,7 +306,39 @@ function createElement(type, config, children) {
 function createElement(type, config, children) {
   (...)
 
-  return ReactElement(type, key, ref, self, source, ReactCurrentOwner.current, props);
+  return ReactElement(
+    type,
+    key,
+    ref,
+    self,
+    source,
+    ReactCurrentOwner.current, // 자기 자신을 감싸고있는 부모 컴포넌트
+    props
+  );
 }
 ```
 
+`ReactCurrentOwner.current`는 **FiberNode** 객체로 되어있는데 가르키는 위치는 아래와 같습니다.  
+
+**Fiber**는 React 16에서 새로나온 핵심 아키텍처입니다.  
+
+> **Fiber**는 오류 경계 및 파편과 같은 React 16의 대부분의 새로운 기능을 담당합니다.
+> 다음 몇 가지 릴리스에서 React의 잠재력을 최대한 발휘하기 시작하면 더 많은 새로운 기능을 기대할 수 있습니다.
+> 우리가 작업하는 가장 흥미로운 영역은 비동기 렌더링이다.
+> 이는 주기적으로 브라우저에 실행을 함으로써 렌더링 작업을 협업적으로 계획하는 전략이다.
+> 결론은 비동기 렌더링을 사용하면 React가 주 스레드를 차단하지 않기 때문에 앱이 더 반응성이 있다는 것입니다.
+> [새로운 핵심 아키텍처](https://reactjs.org/blog/2017/09/26/react-v16.0.html#new-core-architecture)
+
+
+>Fiber는 오류 경계와 단편과 같은 React 16의 새로운 기능 대부분을 담당합니다. 다음 몇 가지 릴리스에서 우리는 React의 잠재력을 최대한 활용하기 위해 더 많은 새로운 기능을 기대할 수 있습니다.
+>아마도 우리가 작업하고있는 가장 흥미로운 부분은 비동기 렌더링, 즉 브라우저에 대한 실행을 주기적으로 수행하여 렌더링 작업을 협업 적으로 예약하는 전략입니다. 결과적으로 비동기 렌더링에서는 React가 메인 스레드를 차단하지 않기 때문에 애플리케이션의 응답 성이 향상되었습니다.
+
+```js
+<Wrapper> // <- null
+  <h1>Hello World</h1> // <- Wrapper
+  <p>I Love React</p> // <- Wrapper
+  <List/> // <- List ( 하위 자식들도 List )
+<Wrapper>
+```
+
+글 쓰는중... ReactElement 이이서 써야됨
