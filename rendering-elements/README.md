@@ -406,13 +406,14 @@ var ReactElement = function (type, key, ref, self, source, owner, props) {
 };
 ```
 
+**REACT_ELEMENT_TYPE** 상수 형태
+
 ```js
-// REACT_ELEMENT_TYPE
 var hasSymbol = typeof Symbol === 'function' && Symbol.for;
 var REACT_ELEMENT_TYPE = hasSymbol ? Symbol.for('react.element') : 0xeac7;
 ```
 
-최종적으로 만들어진 ReactElements 형태
+최종적으로 만들어진 **ReactElements** 형태
 
 ```js
 Object
