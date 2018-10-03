@@ -28,6 +28,8 @@ React.createElement(
 
 실제 createElement() 함수 내부는 어떻게 구성되어 있는지 한번 알아봅시다.
 
+## createElement
+
 ```js
 function createElement(type, config, children) {
   var propName = void 0;
@@ -338,7 +340,7 @@ function createElement(type, config, children) {
 >
 > [새로운 핵심 아키텍처](https://reactjs.org/blog/2017/09/26/react-v16.0.html#new-core-architecture)
 
-**ReactElement**  
+## ReactElement
 
 ReactElement 함수의 내부의 코드는 아래와 같습니다.  
 
@@ -409,3 +411,31 @@ var ReactElement = function (type, key, ref, self, source, owner, props) {
 var hasSymbol = typeof Symbol === 'function' && Symbol.for;
 var REACT_ELEMENT_TYPE = hasSymbol ? Symbol.for('react.element') : 0xeac7;
 ```
+
+최종적으로 만들어진 ReactElements 형태
+
+```js
+Object
+{
+  $$typeof: Symbol(react.element)
+  key: null
+  props: {children: Array(2)}
+  ref: null
+  type: "div"
+  _owner: FiberNode {tag: 2, key: null, type: ƒ, stateNode: Counter, return: FiberNode, …}
+  _store: {validated: false}
+  _self: Counter {props: {…}, context: {…}, refs: {…}, updater: {…}, state: {…}, …}
+  _source: {fileName: "/Users/adam/Documents/react-project/src/index.js", lineNumber: 56}
+  __proto__: Object
+}
+```
+
+## 정리
+
+**createElement** 함수에서는  
+
+1. config 유효성을 체크
+2. children 체크해서 props 객체에 저장
+3. defaultProps 체크해서 props 객체에 저장
+4. key, ref 체크해서 있으면 props 객체에 getter로 바인딩
+5. ReactElement 생성 후 리턴
