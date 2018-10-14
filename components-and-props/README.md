@@ -106,7 +106,16 @@ React는 소문자로 시작하는 구성 요소를 DOM 태그로 처리합니�
 
 ## React.Component
 
-React의 Component 함수 내부를 살펴봅시다.  
+React의 Component 함수 내부는 다음과 같은 형태로 구성되어있습니다.
+
+```js
+function Component() {};
+Component.prototype.isReactComponent = {};
+Component.prototype.setState = function (partialState, callback) {};
+Component.prototype.forceUpdate = function (callback) {};
+```
+
+이제 하나씩 살펴봅시다.  
 
 ```js
 function Component(props, context, updater) {
