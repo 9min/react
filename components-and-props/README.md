@@ -53,7 +53,7 @@ React는 소문자로 시작하는 구성 요소를 DOM 태그로 처리합니�
       }
     }
    ``` 
-`shouldComponentUpdate` method를 실행하지 않아도 **Pure Conponent**가 *state*와 *props*가 다른지 자동으로 비교해서 다를 때에만 재 렌더링을 실행하기 때문에 성능 최적화에 도움이 됩니다.  
+`shouldComponentUpdate` 메서드를 호출하지 않아도 *state*와 *props*가 다른지 자동으로 비교해서 다를 때에만 재 렌더링을 실행하기 때문에 성능 최적화에 도움이 됩니다.  
 
 ## **Stateless Functional Component**
 
