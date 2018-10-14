@@ -19,7 +19,6 @@
   리액트 내부에서 렌더링 요소들을 어떻게 생성하고 관리하는지 알아봅시다.  
 
 - [**Components and Props**](https://github.com/9min/react/blob/master/components-and-props/README.md)  
-
   컴포넌트의 종류는 어떠한 것들이 있고 Props로 어떠한 것들을 받을 수 있는지 알아봅시다.  
 
 - **State and Lifecycle**  
