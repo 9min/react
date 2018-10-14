@@ -35,3 +35,13 @@
 - **Composition vs Inheritance**  
 
 - **Thinking In React**  
+
+*****
+
+## [**react-tips**](https://github.com/9min/react/tree/master/react-tips)  
+
+더 나은 리액트 코드 작성하기
+
+## [**styled-components**](https://github.com/9min/react/tree/master/styled-components)  
+
+요즘 인기있는 컴포넌트 스타일링
