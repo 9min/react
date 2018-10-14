@@ -24,7 +24,7 @@ XHP는 HTML 출력이 많은 PHP 언어 특성에 맞춰 XML또는 HTML을 더 �
 ```php
 <?php
   if ($_POST['name']) {
-    echo <span>this is {$_POST['name']}</span>;
+    echo <span>this is {$_POST['name']} block.</span>;
   } else {
     echo <span>this is else block</span>
   }
