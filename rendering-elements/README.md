@@ -126,6 +126,7 @@ function createElement(type, config, children) {
 **self** 변수 형태
 
 ```js
+// 내부 모듈은 __esModule을 필요로하지 않으며 단지 바벨 (babel) 해킹 일뿐입니다.
 Object
 {
   __esModule: true
