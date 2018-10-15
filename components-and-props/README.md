@@ -282,81 +282,84 @@ warnOnInvalidCallback$1 = function (callback, callerName) {
   };
 ```
 
-classComponentUpdater 내부의 `enqueueUpdate` 함수
+classComponentUpdater 내부의 `enqueueUpdate` 함수  
+[TODO] fiber.updateQueue와 alternate.updateQueue 어떤 관계인지 알아내야됨..
 
 ```js
 function enqueueUpdate(fiber, update) {
   // 업데이트 대기열이 지연돼서 생성됩니다.
 
-  // TODO 번갈아가면서 뭘 하는건가???
+  // 번갈아가면서 뭘 하는건가???
+  // alternate 값은 잘 모르겠다
   var alternate = fiber.alternate;
 
-  // 첫번째 큐
+  // 큐1 변수
   var queue1 = void 0;
 
-  // 두번째 큐
+  // 큐2 변수
   var queue2 = void 0;
 
   // alternate가 null이면
   if (alternate === null) {
 
-    // 첫번째 큐를 fiberNode의 updateQueue로 지정
+    // 큐1 변수에 fiberNode의 updateQueue로 지정
     queue1 = fiber.updateQueue;
 
-    // 두번째 큐는 비어있음
+    // 큐2 변수는 null
     queue2 = null;
 
-    // 첫번째 큐의 값이 없으면
+    // 큐1 변수 값이 없으면
     if (queue1 === null) {
 
-      // createUpdateQueue로 업데이트 큐를 새롭게 생성
+      // fiber.updateQueue에 createUpdateQueue로 업데이트 큐를 새롭게 생성
       queue1 = fiber.updateQueue = createUpdateQueue(fiber.memoizedState);
     }
   } else {
-    // alternate 값이 있으면
-    // 첫번째 큐에는 fiberNode의 updateQueue 값을 넣고
+    // alternate 값이 있으면 큐1 변수에 fiberNode의 updateQueue 값을 넣고
     queue1 = fiber.updateQueue;
 
-    // 두번째 큐에는 alternate의 updateQueue 값을 넣는다
+    // 큐2 변수에는 alternate의 updateQueue 값을 넣는다
     queue2 = alternate.updateQueue;
 
     if (queue1 === null) {
       if (queue2 === null) {
-        // Neither fiber has an update queue. Create new ones.
+        // fiberNode와 alternate 모두 updateQueue가 없으면 ( 어느 상황이지? )
+        // 큐1 변수와 fiber.updateQueue에 새롭게 업데이트 큐를 생성
         queue1 = fiber.updateQueue = createUpdateQueue(fiber.memoizedState);
+        // 큐2 변수와 alternate.updateQueue에 새롭게 업데이트 큐를 생성
         queue2 = alternate.updateQueue = createUpdateQueue(alternate.memoizedState);
       } else {
-        // Only one fiber has an update queue. Clone to create a new one.
+        // alternate.updateQueue만 있으면 큐1 변수와 fiber.updateQueue에 alternate.updateQueue를 복사함
         queue1 = fiber.updateQueue = cloneUpdateQueue(queue2);
       }
     } else {
       if (queue2 === null) {
-        // Only one fiber has an update queue. Clone to create a new one.
+        // fiber.updateQueue만 있으면 큐2 변수와 alternate.updateQueue에 fiber.updateQueue를 복사함
         queue2 = alternate.updateQueue = cloneUpdateQueue(queue1);
       } else {
-        // Both owners have an update queue.
+        // fiber.updateQueue와 alternate.updateQueue 모두 업데이트 큐가 존재하는 경우
       }
     }
   }
 
-  // 두번째 큐가 없거나 첫번재 큐와 두번째 큐가 같으면
+  // 큐2 변수(alternate.updateQueue)가 없거나 첫번재 큐와 두번째 큐가 같으면
   if (queue2 === null || queue1 === queue2) {
-    // 첫번째 큐에 업데이트 될 데이터를 넣는다
-    // 첫번째 큐의 firstUpdate 메서드와 lastUpdate 메서드가 채워진다
+    // 큐1 변수(fiber.updateQueue)에 업데이트 될 데이터를 넣는다
+    // fiber.updateQueue의 firstUpdate 메서드와 lastUpdate 메서드가 채워진다
     appendUpdateToQueue(queue1, update);
   } else {
-    // There are two queues. We need to append the update to both queues,
-    // while accounting for the persistent structure of the list — we don't
-    // want the same update to be added multiple times.
+    // 대기열이 두 개 있습니다. 목록의 지속적 구조를 고려하면서 두 대기열에 업데이트를 추가해야합니다.
+    // 동일한 업데이트가 여러 번 추가되는 것을 원하지 않습니다.
     if (queue1.lastUpdate === null || queue2.lastUpdate === null) {
-      // One of the queues is not empty. We must add the update to both queues.
+      // fiber나 alternate 둘 중 하나라도 마지막 업데이트 값이 없으면
+      // 둘 모두에게 업데이트 될 값을 넣습니다.
       appendUpdateToQueue(queue1, update);
       appendUpdateToQueue(queue2, update);
     } else {
-      // Both queues are non-empty. The last update is the same in both lists,
-      // because of structural sharing. So, only append to one of the lists.
+      // fiber나 alternate 둘 다 비어있으면 구조적 공유 때문에 둘의 마지막 업데이트는 동일합니다.
+      // 따라서 fiber.updateQueue에만 업데이트 될 값을 넣습니다.
       appendUpdateToQueue(queue1, update);
-      // But we still need to update the `lastUpdate` pointer of queue2.
+      // 그러나 queue2 변수(alternate.updateQueue)의 `lastUpdate` 메서드에는 업데이트 될 값을 넣어줘야됩니다.
       queue2.lastUpdate = update;
     }
   }
@@ -382,6 +385,30 @@ function createUpdateQueue(baseState) {
     lastCapturedUpdate: null,
     firstEffect: null,
     lastEffect: null,
+    firstCapturedEffect: null,
+    lastCapturedEffect: null
+  };
+  return queue;
+}
+```
+
+enqueueUpdate 내부의 `cloneUpdateQueue`
+
+```js
+function cloneUpdateQueue(currentQueue) {
+  var queue = {
+    baseState: currentQueue.baseState,
+    firstUpdate: currentQueue.firstUpdate,
+    lastUpdate: currentQueue.lastUpdate,
+
+    // TODO: With resuming, if we bail out and resuse the child tree, we should
+    // keep these effects.
+    firstCapturedUpdate: null,
+    lastCapturedUpdate: null,
+
+    firstEffect: null,
+    lastEffect: null,
+
     firstCapturedEffect: null,
     lastCapturedEffect: null
   };
