@@ -181,7 +181,8 @@ Component.prototype.setState = function (partialState, callback) {
 };
 ```
 
-`this.updater.enqueueSetState` (ReactDOM의 classComponentUpdater.enqueueSetState)  
+Component.prototype.setState 내부의 `this.updater.enqueueSetState`  
+(ReactDOM의 classComponentUpdater.enqueueSetState)  
 
 ```js
 var classComponentUpdater = {
@@ -229,7 +230,7 @@ var classComponentUpdater = {
 };
 ```
 
-`get` 함수
+classComponentUpdater 내부의 `get`
 
 ```js
 function get(key) {
@@ -238,7 +239,7 @@ function get(key) {
 }
 ```
 
-`createUpdate` 함수
+classComponentUpdater 내부의 `createUpdate`
 
 ```js
 var UpdateState = 0;
@@ -257,7 +258,7 @@ function createUpdate(expirationTime) {
 }
 ```
 
-`warnOnInvalidCallback$1` 함수
+classComponentUpdater 내부의 `warnOnInvalidCallback$1` 함수
 
 ```js
 warnOnInvalidCallback$1 = function (callback, callerName) {
@@ -281,25 +282,44 @@ warnOnInvalidCallback$1 = function (callback, callerName) {
   };
 ```
 
-`enqueueUpdate` 함수
+classComponentUpdater 내부의 `enqueueUpdate` 함수
 
 ```js
 function enqueueUpdate(fiber, update) {
-  // Update queues are created lazily.
+  // 업데이트 대기열이 지연돼서 생성됩니다.
+
+  // TODO 번갈아가면서 뭘 하는건가???
   var alternate = fiber.alternate;
+
+  // 첫번째 큐
   var queue1 = void 0;
+
+  // 두번째 큐
   var queue2 = void 0;
+
+  // alternate가 null이면
   if (alternate === null) {
-    // There's only one fiber.
+
+    // 첫번째 큐를 fiberNode의 updateQueue로 지정
     queue1 = fiber.updateQueue;
+
+    // 두번째 큐는 비어있음
     queue2 = null;
+
+    // 첫번째 큐의 값이 없으면
     if (queue1 === null) {
+
+      // createUpdateQueue로 업데이트 큐를 새롭게 생성
       queue1 = fiber.updateQueue = createUpdateQueue(fiber.memoizedState);
     }
   } else {
-    // There are two owners.
+    // alternate 값이 있으면
+    // 첫번째 큐에는 fiberNode의 updateQueue 값을 넣고
     queue1 = fiber.updateQueue;
+
+    // 두번째 큐에는 alternate의 updateQueue 값을 넣는다
     queue2 = alternate.updateQueue;
+
     if (queue1 === null) {
       if (queue2 === null) {
         // Neither fiber has an update queue. Create new ones.
@@ -318,8 +338,11 @@ function enqueueUpdate(fiber, update) {
       }
     }
   }
+
+  // 두번째 큐가 없거나 첫번재 큐와 두번째 큐가 같으면
   if (queue2 === null || queue1 === queue2) {
-    // There's only a single queue.
+    // 첫번째 큐에 업데이트 될 데이터를 넣는다
+    // 첫번째 큐의 firstUpdate 메서드와 lastUpdate 메서드가 채워진다
     appendUpdateToQueue(queue1, update);
   } else {
     // There are two queues. We need to append the update to both queues,
@@ -344,6 +367,25 @@ function enqueueUpdate(fiber, update) {
       didWarnUpdateInsideUpdate = true;
     }
   }
+}
+```
+
+enqueueUpdate 내부의 `createUpdateQueue`
+
+```js
+function createUpdateQueue(baseState) {
+  var queue = {
+    baseState: baseState,
+    firstUpdate: null,
+    lastUpdate: null,
+    firstCapturedUpdate: null,
+    lastCapturedUpdate: null,
+    firstEffect: null,
+    lastEffect: null,
+    firstCapturedEffect: null,
+    lastCapturedEffect: null
+  };
+  return queue;
 }
 ```
 
