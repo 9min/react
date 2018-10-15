@@ -133,7 +133,7 @@ function Component(props, context, updater) {
 }
 ```
 
-emptyObject
+`emptyObject` 객체
 
 ```js
 // 빈 객체에 freeze해서 아무것도 추가 못하게 만듭니다.
@@ -172,35 +172,52 @@ Component.prototype.isReactComponent = {};
  * @protected
  */
 Component.prototype.setState = function (partialState, callback) {
-  // 타입이 object나 function이나 null 또는 undefined가 아니면 에러 내보냄
+  // partialState 매개변수 타입이 object나 function이나 비어있는 값이 아니면 에러 내보냄
   // invariant은 에러 생성해서 내보내는 함수
   !(typeof partialState === 'object' || typeof partialState === 'function' || partialState == null) ? invariant(false, 'setState(...): takes an object of state variables to update or a function which returns an object of state variables.') : void 0;
 
-  // 타입이 제대로 맞으면
+  // setState를 업데이터 대기열에 넣습니다.
   this.updater.enqueueSetState(this, partialState, callback, 'setState');
 };
 ```
 
-this.updater.enqueueSetState (ReactDOM의 classComponentUpdater.enqueueSetState)  
+`this.updater.enqueueSetState` (ReactDOM의 classComponentUpdater.enqueueSetState)  
 
 ```js
 var classComponentUpdater = {
   isMounted: isMounted,
+  // ( inst => 컴포넌트의 instance, payload: 업데이트 될 데이터, callback: 콜백함수 )
   enqueueSetState: function (inst, payload, callback) {
+    // 해당 인스턴스의 FiberNode
     var fiber = get(inst);
+
+    // 따라가보면 Performance.now()로 앱 최초 실행 후 현재까지의 시간 체크... ex) 2841
     var currentTime = requestCurrentTime();
+
+    // FiberNode 만료 시간 계산... ex) 1
+    // computeExpirationForFiber 함수 내용이 많아서 일단 패스..
     var expirationTime = computeExpirationForFiber(currentTime, fiber);
 
+    // 업데이트 객체 설정 ( 아래 코드 참고 )
     var update = createUpdate(expirationTime);
+
+    // 업데이트 객체에 업데이트 할 데이터 등록
     update.payload = payload;
+
+    // 콜백함수가 있으면
     if (callback !== undefined && callback !== null) {
       {
+        // 콜백 타입이 함수가 맞는지 체크하고 아니면 에러 내보냄
         warnOnInvalidCallback$1(callback, 'setState');
       }
+      // 업데이트 객체에 콜백 등록
       update.callback = callback;
     }
 
+    // 업데이트 대기열 함수에 fiberNode와 update 함수를 넣습니다.
     enqueueUpdate(fiber, update);
+
+    
     scheduleWork(fiber, expirationTime);
   },
   enqueueReplaceState: function (inst, payload, callback) {
@@ -210,6 +227,58 @@ var classComponentUpdater = {
     (...)
   }
 };
+```
+
+`get` 함수
+
+```js
+function get(key) {
+  // _reactInternalFiber: FiberNode
+  return key._reactInternalFiber;
+}
+```
+
+`createUpdate` 함수
+
+```js
+var UpdateState = 0;
+
+function createUpdate(expirationTime) {
+  return {
+    expirationTime: expirationTime,
+
+    tag: UpdateState,
+    payload: null,
+    callback: null,
+
+    next: null,
+    nextEffect: null
+  };
+}
+```
+
+`warnOnInvalidCallback$1` 함수
+
+```js
+warnOnInvalidCallback$1 = function (callback, callerName) {
+    // 콜백이 없거나 타입이 함수면 리턴
+    if (callback === null || typeof callback === 'function') {
+      return;
+    }
+
+    // 키 이름 생성해서
+    var key = callerName + '_' + callback;
+
+    // 기존에 문제가 있어서 저장해놓은 콜백 이름이 아니면
+    if (!didWarnOnInvalidCallback.has(key)) {
+
+      // 문제있는 콜백 키를 Set 객체에 새로 추가하고
+      didWarnOnInvalidCallback.add(key);
+
+      // 콜백은 함수 형태로 넘겨달라고 사용자한테 에러 내보냄
+      warningWithoutStack$1(false, '%s(...): Expected the last optional `callback` argument to be a ' + 'function. Instead received: %s.', callerName, callback);
+    }
+  };
 ```
 
 ```js
