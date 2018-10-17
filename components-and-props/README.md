@@ -182,7 +182,7 @@ Component.prototype.setState = function (partialState, callback) {
 ```
 
 Component.prototype.setState 내부의 `this.updater.enqueueSetState`  
-(ReactDOM의 classComponentUpdater.enqueueSetState)  
+( ReactDOM의 classComponentUpdater.enqueueSetState로 대치됨 )  
 
 ```js
 var classComponentUpdater = {
@@ -216,6 +216,7 @@ var classComponentUpdater = {
     }
 
     // 업데이트 대기열 함수에 fiberNode와 update 함수를 넣습니다.
+    // 함수 내용 파악하려다 오래걸려서 일단 패스함
     enqueueUpdate(fiber, update);
 
 
@@ -287,10 +288,13 @@ classComponentUpdater 내부의 `enqueueUpdate` 함수
 
 ```js
 function enqueueUpdate(fiber, update) {
-  // 업데이트 대기열이 지연돼서 생성됩니다.
+  /*
+    fiber.updateQueue와 alternate.updateQueue 두개의 업데이트큐를 비교하면서 업데이트 객체 관리를 하는데
+    두가지 큐의 값이 언제 어떻게 들어가는지는 파악하지 못했음..
+    이 함수에서는 두가지 큐의 값을 비교하면서 조건에 따라 최신 업데이트 될 값을 새로 집어넣음
+  */
 
-  // 번갈아가면서 뭘 하는건가???
-  // alternate 값은 잘 모르겠다
+  // fiberNode 객체의 alternate
   var alternate = fiber.alternate;
 
   // 큐1 변수
@@ -401,8 +405,6 @@ function cloneUpdateQueue(currentQueue) {
     firstUpdate: currentQueue.firstUpdate,
     lastUpdate: currentQueue.lastUpdate,
 
-    // TODO: With resuming, if we bail out and resuse the child tree, we should
-    // keep these effects.
     firstCapturedUpdate: null,
     lastCapturedUpdate: null,
 
@@ -418,20 +420,71 @@ function cloneUpdateQueue(currentQueue) {
 
 ```js
 /**
- * Forces an update. This should only be invoked when it is known with
- * certainty that we are **not** in a DOM transaction.
+ * setState()를 호출하지 않고 강제로 업데이트 할 때 사용합니다.
+ * 일반적으로는 forceUpdate()의 사용을 피하고 render()의 this.props 및
+ * this.state에서 읽기만 시도해야합니다.
+ * `shouldComponentUpdate`는 호출되지 않지만,
+ * `componentWillUpdate`와 `componentDidUpdate`는 호출됩니다.
  *
- * You may want to call this when you know that some deeper aspect of the
- * component's state has changed but `setState` was not called.
- *
- * This will not invoke `shouldComponentUpdate`, but it will invoke
- * `componentWillUpdate` and `componentDidUpdate`.
- *
- * @param {?function} callback Called after update is complete.
+ * @param {?function} callback
  * @final
  * @protected
  */
 Component.prototype.forceUpdate = function (callback) {
   this.updater.enqueueForceUpdate(this, callback, 'forceUpdate');
 };
+```
+
+`forceUpdate()` 사용하는 예시
+
+```jsx
+import React, { Component } from 'react';
+
+export default class Random extends Component {
+
+  handleButtonClick() {
+    // state 값이 변경되지 않아서 render() 함수를 호출해도 렌더링이 되지 않습니다.
+    // this.render();
+
+    // 강제로 렌더링이 되도록 업데이트 합니다.
+    this.forceUpdate();
+  }
+
+  render() {
+    return (
+      <div>
+        { Math.random() }
+        <button onClick={ this.handleButtonClick.bind(this) }>
+          클릭하세요!
+        </button>
+      </div>
+    )
+  }
+}
+```
+
+forceUpdate 내부의 `enqueueForceUpdate`
+
+```js
+enqueueForceUpdate: function (inst, callback) {
+  var fiber = get(inst);
+  var currentTime = requestCurrentTime();
+  var expirationTime = computeExpirationForFiber(currentTime, fiber);
+
+  var update = createUpdate(expirationTime);
+
+  // update 객체에 ForceUpdate 태그를 지정해서
+  // 다음 프로세스가 진행될 때 태그가 ForceUpdate인지 체크해서 강제로 업데이트 합니다.
+  update.tag = ForceUpdate;
+
+  if (callback !== undefined && callback !== null) {
+    {
+      warnOnInvalidCallback$1(callback, 'forceUpdate');
+    }
+    update.callback = callback;
+  }
+
+  enqueueUpdate(fiber, update);
+  scheduleWork(fiber, expirationTime);
+}
 ```
