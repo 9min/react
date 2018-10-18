@@ -121,8 +121,6 @@ Component.prototype.forceUpdate = function (callback) {};
 function Component(props, context, updater) {
   this.props = props;
   this.context = context;
-
-  // Component에 문자열 참조가 있는 경우 나중에 다른 객체를 할당합니다.
   this.refs = emptyObject;
 
   // 기본적으로 React에 있는 ReactNoopUpdateQueue를 사용하지만
@@ -486,5 +484,146 @@ enqueueForceUpdate: function (inst, callback) {
 
   enqueueUpdate(fiber, update);
   scheduleWork(fiber, expirationTime);
+}
+```
+
+## React.PureComponent
+
+React의 PureComponent 함수 내부는 다음과 같은 형태로 구성되어있습니다.
+
+```js
+function PureComponent(props, context, updater) {
+  this.props = props;
+  this.context = context;
+  this.refs = emptyObject;
+
+  // Component()와 동일합니다.
+  this.updater = updater || ReactNoopUpdateQueue;
+}
+
+// PureComponent.prototype에 Component의 prototype을 넣습니다. ( ComponentDummy() 참고 )
+var pureComponentPrototype = PureComponent.prototype = new ComponentDummy();
+
+// constructor를 PureComponent로 지정합니다.
+pureComponentPrototype.constructor = PureComponent;
+
+// PureComponent.prototype에 Component.prototype을 복사 ( Object.assign )
+objectAssign(pureComponentPrototype, Component.prototype);
+
+// PureComponent.prototype에 isPureReactComponent 프로퍼티를 넣어서 PureComponent라고 지정
+// ReactDOM에서 isPureReactComponent 프로퍼티로 PureComponent인지 확인함
+pureComponentPrototype.isPureReactComponent = true;
+```
+
+PureComponent.prototype의 `ComponentDummy()`
+
+```js
+// Component의 prototype을 갖고있습니다.
+function ComponentDummy() {}
+ComponentDummy.prototype = Component.prototype;
+```
+
+## **Stateless Functional Component**
+
+ReactDOM 내부에서 Stateless Functional Component는 어떻게 처리되고 있을까?  
+
+```js
+/*
+  리액트의 핵심인 FiberNode를 만드는 createFiberFromElement() 함수에서
+  shouldConstruct()에 element.type을 넣어서
+  type이 함수면 리액트 컴포넌트인지 아닌지를 체크를 하고 ClassComponent가 아니면
+  fiberTag를 일단 IndeterminateComponent로 지정합니다. (확정되지 않은 컴포넌트)
+*/
+function createFiberFromElement(element, mode, expirationTime) {
+
+  (...)
+
+  // element.type에는 Component또는 일반 Element가 들어있습니다.
+  var type = element.type;
+
+  if (typeof type === 'function') {
+      fiberTag = shouldConstruct(type) ? ClassComponent : IndeterminateComponent;
+    }
+  }
+
+  (...)
+
+  fiber = createFiber(fiberTag, pendingProps, key, mode);
+  fiber.type = type;
+
+  (...)
+
+  return fiber;
+}
+```
+
+createFiberFromElement 내부의 `shouldConstruct`
+
+```js
+// ReactComponent인지 체크합니다.
+function shouldConstruct(Component) {
+  var prototype = Component.prototype;
+  return !!(prototype && prototype.isReactComponent);
+}
+```
+
+이후에 `beginWork()` 함수가 호출될 때 함수형 컴포넌트는 `IndeterminateComponent`로 분류가 되고  
+`mountIndeterminateComponent()` 에 들어가게 되는데 여기서 **FunctionalComponent**로 최종적으로 분류됩니다. 
+
+```js
+function beginWork(current$$1, workInProgress, renderExpirationTime) {
+  (...)
+
+  switch (workInProgress.tag) {
+    // IndeterminateComponent 값으로 걸러져서 mountIndeterminateComponent() 함수에 들어간다
+    case IndeterminateComponent:
+      {
+        var _Component3 = workInProgress.type;
+        return mountIndeterminateComponent(current$$1, workInProgress, _Component3, renderExpirationTime);
+      }
+    (...)
+  }
+
+  (...)
+}
+```
+
+`mountIndeterminateComponent()` 내부에서 하는 일은 다음과 같습니다.  
+
+```js
+function mountIndeterminateComponent(current$$1, workInProgress, Component, renderExpirationTime) {
+  (...)
+
+  // ClassComponent인지 체크
+  if (typeof value === 'object' && value !== null && typeof value.render === 'function' && value.$$typeof === undefined) {
+    (...)
+  } else {
+    // 여기서 FunctionalComponent로 최종적으로 뷴류됩니다.
+    workInProgress.tag = FunctionalComponent;
+
+    // Stateless function components에 들어있으면 안되는 ref, getDerivedStateFromProps 등을 체크
+    (...)
+  }
+
+  (...)
+
+  return workInProgress.child;
+}
+```
+
+그리고 `completeWork()` 함수가 호출됐을 때 아무일도 하지 않고 끝내버립니다.  
+
+```js
+function completeWork(current, workInProgress, renderExpirationTime) {
+  var newProps = workInProgress.pendingProps;
+
+  switch (workInProgress.tag) {
+    case FunctionalComponent:
+    case FunctionalComponentLazy:
+      // 아무 일도 하지 않습니다.
+      break;
+      (...)
+  }
+  return null;
 }
 ```
