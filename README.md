@@ -12,7 +12,7 @@
 
 ## React v16의 핵심 아키텍쳐 Fiber
 
-[**Fiber가 도대체 뭐지?**](https://github.com/9min/react/blob/master/React/fiber/README.md)  
+[**Fiber가 도대체 뭐지?**](https://github.com/9min/react/blob/master/fiber/README.md)  
 
 ## 리액트의 주요 개념
 
