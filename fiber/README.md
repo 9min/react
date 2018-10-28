@@ -71,8 +71,11 @@ React Core팀의 기술 리더인 **Sebastian Markbåge**가 `React Fiber`의 �
 
 > [**requestIdleCallBack**](https://developer.mozilla.org/ko/docs/Web/API/Window/requestIdleCallback)은 브라우저의 전반적인 작업 일정에 협력할 수 있는 방법을 제공하는 한 방법입니다.
 
-**requestIdleCallBack**을 사용한 예제에 대한 설명은 [Cooperative Scheduling of Background Tasks API
+**requestIdleCallBack**을 사용한 공식 예제는 [Cooperative Scheduling of Background Tasks API
 ](https://developer.mozilla.org/ko/docs/Web/API/Background_Tasks_API)를 보시면 됩니다.  
+
+[CodeSandbox에서 실행되는 예제](https://codesandbox.io/s/1vpk9zk6y4)  
+위 예제를 크롬 개발자도구의 퍼포먼스 탭에서 체크해보면 requestIdleCallBack()을 적용했을 때 메인 스레드의 중간중간에 돔 렌더링 처리가 되고 있다는 것을 확인할 수 있습니다.  
 
 Fiber에서는 requestIdleCallback을 활용해서 동작중인 React 코드를 매번 부르고, 주어진 시간을 초과한다면 멈추고 더 중요한 일에 양보합니다. 더 중요한 일이 끝나면 다시 돌아와서 나머지 작업을 완료합니다.
 
