@@ -59,10 +59,19 @@ React Core팀의 기술 리더인 **Sebastian Markbåge**가 `React Fiber`의 �
 > Triangles Demo의 소스 코드는 [Official Github React Repository](https://github.com/facebook/react/blob/master/fixtures/fiber-triangle/index.html)에서 확인할 수 있습니다.  
 
 ### Time Slicing 전용 전
-![타임슬라이스 미적용](./resource/triangles-demo-without-time-slicing.png)  
+![타임슬라이싱 미적용](./resource/triangles-demo-without-time-slicing.png)  
+
+애니메이션과 숫자는 Time Slicing 없이 삼각형 데모에서 타임라인을 업데이트합니다.  
+
+위의 그림에서 볼 수 있듯이 숫자 업데이트가 트리거 되면서 `Work-in-progress tree`를 구축하는 동안 `Fiber`는 해당 tree에서 변경 사항을 찾는 작업을 반복합니다.  
+이렇게 하면 메인 스레드에서 `350ms`동안 일을 바쁘게 처리하는 게 유지됩니다.  
+
+메인 스레드가 애니메이션 업데이트를 관리하지 못하도록 하면 프레임이 길어지고 결과적으로는 사용자는 부드럽지 못하고 부자연스럽게 움직이는 모션을 보게 됩니다.  
+
+위 예제는 *Fiber의 호환 모드*에서 사용했기 때문에 Time Slicing이 적용되지 않아서 모든 업데이트는 우선순위가 지정되지 않고 **동기식**으로 처리되었습니다.  
 
 ### Time Slicing 적용 후
-![타임슬라이스 적용](./resource/triangles-demo-with-time-slicing.png)  
+![타임슬라이싱 적용](./resource/triangles-demo-with-time-slicing.png)  
 
 애니메이션과 숫자는 Time Slicing으로 Triangles Demo의 타임라인을 업데이트합니다.  
 
